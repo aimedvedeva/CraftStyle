@@ -7,7 +7,7 @@ def connect():
                             password="HSDStoTestDb3711", host="database-1.czcdhgn8biyx.us-east-1.rds.amazonaws.com", port="5432")
     return conn.cursor()
 
-def addCustomer(name):
+def createCustomer(name):
     cur = connect()
     cur.execute("begin;")
 
@@ -40,13 +40,13 @@ def purchaseSubscription(customer_id, subscription_plan):
         except:
             cur.execute("rollback")
 
-def addCustomerSession(customer_id, pictures, picure_links, tags):
+def createCustomerSession(customer_id, pictures, picure_links, tags):
     cur = connect()
     cur.execute("set transaction isolation level serializable;")
     cur.execute("begin;")
 
     try:
-        # get id of a requested subscription plan
+        # get allowed_sessions of a customer's subscription plan
         cur.execute("""select s.allowedsessions \
                        from subscriptionplan s \ 
                        join customerplan c on s.planid = c.subscriptionplanid where customerID = %s""", (customer_id))
@@ -88,7 +88,7 @@ def updateSessionRecommendation(session_id, recommendation):
     cur.execute("commit")
 
 def deleteCustomer(customer_id):
-    # since customer_id is a foreign key for CustomerSession, Picture and CustometPlan
+    # since customer_id is a foreign key for CustomerSession, Picture and CustomerPlan
     # firstly, we have to delete corresponding rows there
     # and finally from Customer table
 
