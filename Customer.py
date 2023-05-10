@@ -12,7 +12,7 @@ def addCustomer(name):
     cur.execute("begin;")
 
     # create a new customer
-    create_customer_query = """INSERT INTO Customer(Name,sessionsNumber,subscriptionPlanID) VALUES (%s, %s, NULL);"""
+    create_customer_query = """INSERT INTO CraftStyle.Customer(Name,sessionsNumber,subscriptionPlanID) VALUES (%s, %s, NULL);"""
     cur.execute(create_customer_query, (name, 0))
 
     cur.execute("commit")
@@ -116,6 +116,18 @@ def deleteCustomer(customer_id):
         # raise an exception if any error occur
         cur.execute("Rollback;")
         
+def addSubscriptionPlan(subscription_plan,money,num_Sessions):
+    cur = connect()
+    q="INSERT INTO CraftStyle.SubscriptionPlan (Type, price, AllowedSessions) VALUES (%s, %s, %s);"
+    cur.execute(q, (subscription_plan, money, num_Sessions))
+    cur.execute("COMMIT")
+    
+def addPicture(customer_id,URL,Tag):
+    cur = connect()
+    q="INSERT INTO CraftStyle.Picture(customerID,pictureUrl,tags) VALUES (%s, %s, %s);"
+    cur.execute(q, (customer_id,URL,Tag))
+    cur.execute("COMMIT")
+    
 #------------------------------------------------------------------------------
 #Creat schema and tables 
 cur = connect()
@@ -136,4 +148,31 @@ cur.execute("COMMIT")
 
 cur.execute("CREATE table if not EXISTS CraftStyle.SessionPicture(SessionID INT REFERENCES CraftStyle.CustomerSession(customerSessionID),PictureID INT REFERENCES CraftStyle.Picture(pictureID));")
 cur.execute("COMMIT")
+
+#-----------------------------------------------------
+#add rows to the tables 
+
+#SubscriptionPlan
+'''
+addSubscriptionPlan('Basic', 0, 0)
+addSubscriptionPlan('Advanced', 0.99, 'Infinity')
+'''
+ 
+#Customer
+addCustomer('Farh')
+addCustomer('Bob')
+addCustomer('jo')
+addCustomer('eli')
+purchaseSubscription(1, 'Basic')
+purchaseSubscription(2, 'Basic')
+purchaseSubscription(2, 'Advanced')
+purchaseSubscription(4, 'Basic')
+
+#Picture
+addPicture(1, 'https://drive.google.com/file/d/1UytPqBiPHJE4ES5jTToOr8BRRvLi2nT1/view?usp=sharing', 'rock')
+addPicture(2, 'https://drive.google.com/file/d/1dT8WV288nerOT8PdG2HlYJCGND-ibCeZ/view?usp=sharing', 'casual, office')
+addPicture(3, 'https://drive.google.com/file/d/1f6pIr-1ab7T9-Rc8j37zpJ0QiRwA0nA2/view?usp=share_link', 'casual')
+
+
+
     
