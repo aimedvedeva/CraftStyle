@@ -115,7 +115,25 @@ def deleteCustomer(customer_id):
     except Exception as e:
         # raise an exception if any error occur
         cur.execute("Rollback;")
+        
+#------------------------------------------------------------------------------
+#Creat schema and tables 
+cur = connect()
+cur.execute("CREATE SCHEMA if not EXISTS CraftStyle;")
+cur.execute("COMMIT")
 
+cur = connect()
+cur.execute("CREATE table if not EXISTS CraftStyle.SubscriptionPlan(PlanID INT primary key GENERATED ALWAYS AS IDENTITY,Type varchar,price money not null,AllowedSessions float);")
+cur.execute("COMMIT")
 
+cur.execute("CREATE table if not EXISTS CraftStyle.Customer(CustomerID INT primary key GENERATED ALWAYS AS IDENTITY,Name varchar not null,sessionsNumber INT,subscriptionPlanID INT REFERENCES CraftStyle.SubscriptionPlan(planID));")
+cur.execute("COMMIT")
 
+cur.execute("CREATE table if not EXISTS CraftStyle.CustomerPlan(CustomerID INT REFERENCES CraftStyle.Customer(customerID),subscriptionPlanID INT REFERENCES CraftStyle.SubscriptionPlan(planID),purchaseDate date);")
+cur.execute("CREATE table if not EXISTS CraftStyle.CustomerSession(CustomerSessionID INT primary key GENERATED ALWAYS AS IDENTITY,CustomerID INT REFERENCES CraftStyle.Customer(customerID),Recommendation text,pucturesNumber INT,tags varchar,sessionDate date);")
+cur.execute("CREATE table if not EXISTS CraftStyle.Picture(pictureID INT primary key GENERATED ALWAYS AS IDENTITY,customerID INT REFERENCES CraftStyle.Customer(customerID),pictureUrl varchar,tags varchar);")
+cur.execute("COMMIT")
 
+cur.execute("CREATE table if not EXISTS CraftStyle.SessionPicture(SessionID INT REFERENCES CraftStyle.CustomerSession(customerSessionID),PictureID INT REFERENCES CraftStyle.Picture(pictureID));")
+cur.execute("COMMIT")
+    
