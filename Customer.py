@@ -159,20 +159,23 @@ addSubscriptionPlan('Advanced', 0.99, 'Infinity')
 '''
  
 #Customer
+'''
 addCustomer('Farh')
 addCustomer('Bob')
 addCustomer('jo')
 addCustomer('eli')
-purchaseSubscription(1, 'Basic')
-purchaseSubscription(2, 'Basic')
-purchaseSubscription(2, 'Advanced')
-purchaseSubscription(4, 'Basic')
+purchaseSubscription(6, 'Basic')
+purchaseSubscription(7, 'Basic')
+purchaseSubscription(8, 'Advanced')
+purchaseSubscription(9, 'Basic')
+'''
 
 #Picture
+'''
 addPicture(1, 'https://drive.google.com/file/d/1UytPqBiPHJE4ES5jTToOr8BRRvLi2nT1/view?usp=sharing', 'rock')
 addPicture(2, 'https://drive.google.com/file/d/1dT8WV288nerOT8PdG2HlYJCGND-ibCeZ/view?usp=sharing', 'casual, office')
 addPicture(3, 'https://drive.google.com/file/d/1f6pIr-1ab7T9-Rc8j37zpJ0QiRwA0nA2/view?usp=share_link', 'casual')
-
+'''
 
 
     
