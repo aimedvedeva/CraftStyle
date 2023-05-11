@@ -22,36 +22,41 @@ def purchaseSubscription(customer_id, subscription_plan):
     cur.execute("set transaction isolation level serializable;")
     cur.execute("begin;")
 
-    # Define the sessionsNumber and subscriptionPlanID based on the subscription plan
-    if subscription_plan == 'Basic':
-        sessions_number = 5
-        subscription_plan_id = 1
-    elif subscription_plan == 'Advanced':
-        sessions_number = 99999999  # Set a large value as an approximation to 'Infinity'
-        subscription_plan_id = 2
-    else:
-        raise ValueError("Invalid subscription plan.")
-
-    # Check if the customer's current subscriptionPlanID is already 1 (Basic plan)
-    check_customer_query = "SELECT subscriptionPlanID FROM CraftStyle.Customer WHERE CustomerID = %s;"
-    cur.execute(check_customer_query, (customer_id,))
-    current_subscription_id = cur.fetchone()[0]
-
-    if current_subscription_id == 1 and subscription_plan_id == 1:
-        print("Customer already has the Basic subscription plan.")
-        return
-
-    # Update the sessionsNumber and subscriptionPlanID in the Customer table
-    update_customer_query = "UPDATE CraftStyle.Customer SET sessionsNumber = %s, subscriptionPlanID = %s WHERE CustomerID = %s;"
-    cur.execute(update_customer_query, (sessions_number, subscription_plan_id, customer_id))
-
-    # Insert the customer plan record
-    create_customer_plan_query = "INSERT INTO CraftStyle.CustomerPlan (customerID, subscriptionPlanID, purchaseDate) VALUES (%s, %s, current_date);"
-    cur.execute(create_customer_plan_query, (customer_id, subscription_plan_id))
-
     try:
+        # Define the sessionsNumber and subscriptionPlanID based on the subscription plan
+        if subscription_plan == 'Basic':
+            sessions_number = 5
+            subscription_plan_id = 1
+        elif subscription_plan == 'Advanced':
+            sessions_number = 99999999  # Set a large value as an approximation to 'Infinity'
+            subscription_plan_id = 2
+        else:
+            raise ValueError("Invalid subscription plan.")
+
+        # Check if the customer's current subscriptionPlanID is already 1 (Basic plan)
+        check_customer_query = "SELECT subscriptionPlanID FROM CraftStyle.Customer WHERE CustomerID = %s;"
+        cur.execute(check_customer_query, (customer_id,))
+        current_subscription_id = cur.fetchone()[0]
+
+        if current_subscription_id == 1 and subscription_plan_id == 1:
+            raise ValueError("Customer already has the Basic subscription plan.")
+            return
+
+        if current_subscription_id == 2 and subscription_plan_id == 2:
+            raise ValueError("Customer already has the Advanced subscription plan.")
+            return
+
+        # Update the sessionsNumber and subscriptionPlanID in the Customer table
+        update_customer_query = "UPDATE CraftStyle.Customer SET sessionsNumber = %s, subscriptionPlanID = %s WHERE CustomerID = %s;"
+        cur.execute(update_customer_query, (0, subscription_plan_id, customer_id))
+
+        # Insert the customer plan record
+        create_customer_plan_query = "INSERT INTO CraftStyle.CustomerPlan (customerID, subscriptionPlanID, purchaseDate) VALUES (%s, %s, current_date);"
+        cur.execute(create_customer_plan_query, (customer_id, subscription_plan_id))
+
         cur.execute("commit")
     except psycopg2.Error:
+        # if any error occur
         cur.execute("rollback")
 
 def createCustomerSession(customer_id, pictures, picure_links, tags):
@@ -71,7 +76,7 @@ def createCustomerSession(customer_id, pictures, picure_links, tags):
         done_sessions = cur.fetchone()[0]
 
         # check if the customer doesn't exceed the limit according to his subscription plan
-        if done_sessions == allowed_sessions:
+        if done_sessions >= allowed_sessions:
             raise ValueError("Unfortunately, all you free sessions have already used. You can upgrade you subscription plan.")
 
         update_sessions_number_query = """UPDATE customer SET sessionsnumber = sessionsnumber + 1 WHERE custometID = %s;"""
@@ -117,9 +122,9 @@ def deleteCustomer(customer_id):
         cur.execute("COMMIT")
 
         # delete all customer's sessions
-        delete_customer_sessions_query = """delete from CustomerSession WHERE custometID = %s;"""
-        cur.execute(delete_customer_sessions_query, (customer_id))
-        cur.execute("COMMIT")
+        # delete_customer_sessions_query = """delete from CustomerSession WHERE custometID = %s;"""
+        # cur.execute(delete_customer_sessions_query, (customer_id))
+        # cur.execute("COMMIT")
 
         # delete all customer's subscription history
         delete_customer_subscriptions_query = """delete from customerPlan WHERE custometID = %s;"""
