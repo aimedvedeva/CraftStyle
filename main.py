@@ -9,7 +9,7 @@ cur = connect()
 cur.execute("CREATE table if not EXISTS CraftStyle.SubscriptionPlan(PlanID INT primary key GENERATED ALWAYS AS IDENTITY,Type varchar,price money not null,AllowedSessions float);")
 cur.execute("COMMIT")
 
-cur.execute("CREATE table if not EXISTS CraftStyle.Customer(CustomerID INT primary key GENERATED ALWAYS AS IDENTITY,Name varchar not null,sessionsNumber INT,subscriptionPlanID INT REFERENCES CraftStyle.SubscriptionPlan(planID));")
+cur.execute("CREATE table if not EXISTS CraftStyle.Customer(CustomerID INT primary key GENERATED ALWAYS AS IDENTITY,Name varchar not null,sessionsNumber INT,subscriptionPlanID INT REFERENCES CraftStyle.SubscriptionPlan(planID), balance INT);")
 cur.execute("COMMIT")
 
 cur.execute("CREATE table if not EXISTS CraftStyle.CustomerPlan(CustomerID INT REFERENCES CraftStyle.Customer(customerID),subscriptionPlanID INT REFERENCES CraftStyle.SubscriptionPlan(planID),purchaseDate date);")
@@ -31,10 +31,10 @@ addSubscriptionPlan('Advanced', 0.99, 'Infinity')
  
 #Customer
 '''
-addCustomer('Farh')
-addCustomer('Bob')
-addCustomer('jo')
-addCustomer('eli')
+addCustomer('Farh',0)
+addCustomer('Bob',100)
+addCustomer('jo',250)
+addCustomer('eli',10)
 purchaseSubscription(6, 'Basic')
 purchaseSubscription(7, 'Basic')
 purchaseSubscription(8, 'Advanced')
