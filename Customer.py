@@ -7,13 +7,13 @@ def connect():
                             password="HSDStoTestDb3711", host="database-1.czcdhgn8biyx.us-east-1.rds.amazonaws.com", port="5432")
     return conn.cursor()
 
-def addCustomer(name):
+def addCustomer(name,money):
     cur = connect()
     cur.execute("begin;")
 
     # create a new customer
-    create_customer_query = """INSERT INTO CraftStyle.Customer(Name,sessionsNumber,subscriptionPlanID) VALUES (%s, %s, NULL);"""
-    cur.execute(create_customer_query, (name, 0))
+    create_customer_query = """INSERT INTO CraftStyle.Customer(Name,sessionsNumber,subscriptionPlanID) VALUES (%s, %s, NULL,%s);"""
+    cur.execute(create_customer_query, (name, 0,money))
 
     cur.execute("commit")
 
