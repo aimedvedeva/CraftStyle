@@ -22,23 +22,37 @@ def purchaseSubscription(customer_id, subscription_plan):
     cur.execute("set transaction isolation level serializable;")
     cur.execute("begin;")
 
-    # get id of a requested subscription plan
-    cur.execute("select s.planid from subscriptionplan s where s.type = %s", (subscription_plan))
-    subscription_plan_id = cur.fetchone()[0]
-
+    # Define the sessionsNumber and subscriptionPlanID based on the subscription plan
     if subscription_plan == 'Basic':
-        create_customer_plan_query = """INSERT INTO CustomerPlan \ 
-                                        (customerID,subscriptionPlanID,purchaseDate) VALUES (%s, %s, current_date);"""
-
-        cur.execute(create_customer_plan_query, (customer_id, subscription_plan_id))
+        sessions_number = 5
+        subscription_plan_id = 1
     elif subscription_plan == 'Advanced':
-        try:
-            # process_transaction()
-            create_customer_query = """INSERT INTO CustomerPlan (customerID,subscriptionPlanID,purchaseDate) VALUES (%s, %s, current_date);"""
-            cur.execute(create_customer_query, (customer_id, subscription_plan_id))
-            cur.execute("commit")
-        except:
-            cur.execute("rollback")
+        sessions_number = 99999999  # Set a large value as an approximation to 'Infinity'
+        subscription_plan_id = 2
+    else:
+        raise ValueError("Invalid subscription plan.")
+
+    # Check if the customer's current subscriptionPlanID is already 1 (Basic plan)
+    check_customer_query = "SELECT subscriptionPlanID FROM CraftStyle.Customer WHERE CustomerID = %s;"
+    cur.execute(check_customer_query, (customer_id,))
+    current_subscription_id = cur.fetchone()[0]
+
+    if current_subscription_id == 1 and subscription_plan_id == 1:
+        print("Customer already has the Basic subscription plan.")
+        return
+
+    # Update the sessionsNumber and subscriptionPlanID in the Customer table
+    update_customer_query = "UPDATE CraftStyle.Customer SET sessionsNumber = %s, subscriptionPlanID = %s WHERE CustomerID = %s;"
+    cur.execute(update_customer_query, (sessions_number, subscription_plan_id, customer_id))
+
+    # Insert the customer plan record
+    create_customer_plan_query = "INSERT INTO CraftStyle.CustomerPlan (customerID, subscriptionPlanID, purchaseDate) VALUES (%s, %s, current_date);"
+    cur.execute(create_customer_plan_query, (customer_id, subscription_plan_id))
+
+    try:
+        cur.execute("commit")
+    except psycopg2.Error:
+        cur.execute("rollback")
 
 def createCustomerSession(customer_id, pictures, picure_links, tags):
     cur = connect()
@@ -129,53 +143,3 @@ def addPicture(customer_id,URL,Tag):
     cur.execute("COMMIT")
     
 #------------------------------------------------------------------------------
-#Creat schema and tables 
-cur = connect()
-cur.execute("CREATE SCHEMA if not EXISTS CraftStyle;")
-cur.execute("COMMIT")
-
-cur = connect()
-cur.execute("CREATE table if not EXISTS CraftStyle.SubscriptionPlan(PlanID INT primary key GENERATED ALWAYS AS IDENTITY,Type varchar,price money not null,AllowedSessions float);")
-cur.execute("COMMIT")
-
-cur.execute("CREATE table if not EXISTS CraftStyle.Customer(CustomerID INT primary key GENERATED ALWAYS AS IDENTITY,Name varchar not null,sessionsNumber INT,subscriptionPlanID INT REFERENCES CraftStyle.SubscriptionPlan(planID));")
-cur.execute("COMMIT")
-
-cur.execute("CREATE table if not EXISTS CraftStyle.CustomerPlan(CustomerID INT REFERENCES CraftStyle.Customer(customerID),subscriptionPlanID INT REFERENCES CraftStyle.SubscriptionPlan(planID),purchaseDate date);")
-cur.execute("CREATE table if not EXISTS CraftStyle.CustomerSession(CustomerSessionID INT primary key GENERATED ALWAYS AS IDENTITY,CustomerID INT REFERENCES CraftStyle.Customer(customerID),Recommendation text,pucturesNumber INT,tags varchar,sessionDate date);")
-cur.execute("CREATE table if not EXISTS CraftStyle.Picture(pictureID INT primary key GENERATED ALWAYS AS IDENTITY,customerID INT REFERENCES CraftStyle.Customer(customerID),pictureUrl varchar,tags varchar);")
-cur.execute("COMMIT")
-
-cur.execute("CREATE table if not EXISTS CraftStyle.SessionPicture(SessionID INT REFERENCES CraftStyle.CustomerSession(customerSessionID),PictureID INT REFERENCES CraftStyle.Picture(pictureID));")
-cur.execute("COMMIT")
-
-#-----------------------------------------------------
-#add rows to the tables 
-
-#SubscriptionPlan
-'''
-addSubscriptionPlan('Basic', 0, 0)
-addSubscriptionPlan('Advanced', 0.99, 'Infinity')
-'''
- 
-#Customer
-'''
-addCustomer('Farh')
-addCustomer('Bob')
-addCustomer('jo')
-addCustomer('eli')
-purchaseSubscription(6, 'Basic')
-purchaseSubscription(7, 'Basic')
-purchaseSubscription(8, 'Advanced')
-purchaseSubscription(9, 'Basic')
-'''
-
-#Picture
-'''
-addPicture(1, 'https://drive.google.com/file/d/1UytPqBiPHJE4ES5jTToOr8BRRvLi2nT1/view?usp=sharing', 'rock')
-addPicture(2, 'https://drive.google.com/file/d/1dT8WV288nerOT8PdG2HlYJCGND-ibCeZ/view?usp=sharing', 'casual, office')
-addPicture(3, 'https://drive.google.com/file/d/1f6pIr-1ab7T9-Rc8j37zpJ0QiRwA0nA2/view?usp=share_link', 'casual')
-'''
-
-
-    
