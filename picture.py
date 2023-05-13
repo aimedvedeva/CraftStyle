@@ -16,3 +16,11 @@ def addPicture(customer_id, URL, Tag):
     cur.execute(q, (customer_id, URL, Tag))
     cur.execute("COMMIT")
 
+def deletePicture(picture_id):
+    cur = connect()
+    delete_picture_query = """delete from CraftStyle.Picture WHERE pictureId = %s;"""
+    cur.execute(delete_picture_query, (picture_id,))
+    cur.execute("COMMIT")
+
+
+

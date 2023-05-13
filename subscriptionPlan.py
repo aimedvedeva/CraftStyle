@@ -29,3 +29,17 @@ def getSubscriptionPlanId(subscription_plan, cur):
     cur.execute(get_subscription_plan_id, (subscription_plan,))
     plan_id = cur.fetchone()[0]
     return plan_id
+
+def deleteSubscriptionPlan(plan_id):
+    cur = connect()
+    cur.execute("set transaction isolation level serializable;")
+    cur.execute("begin;")
+
+    try:
+        delete_subscription_plan_query = """delete from CraftStyle.SubscriptionPlan WHERE planId = %s;"""
+        cur.execute(delete_subscription_plan_query, (plan_id,))
+        cur.execute("COMMIT")
+
+    except Exception as e:
+        # raise an exception if any error occur
+        cur.execute("Rollback;")

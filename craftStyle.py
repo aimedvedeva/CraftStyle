@@ -35,7 +35,6 @@ def createCustomerPlanTable():
 #         pictureId INT REFERENCES CraftStyle.Picture(pictureId));")
 #     cur.execute("COMMIT")
 
-
 def purchaseSubscription(customer_id, subscription_plan):
     cur = connect()
     cur.execute("set transaction isolation level serializable;")
@@ -43,17 +42,7 @@ def purchaseSubscription(customer_id, subscription_plan):
 
     try:
         # check if customer already have any type of active subscription
-        check_active_subscription_query = """select sp."type"
-        from CraftStyle.CustomerPlan cp 
-        join CraftStyle.SubscriptionPlan sp on cp.subscriptionPlanId = sp.planId
-        where cp.customerId = %s
-        and cp.expired = '0';"""
-
-        cur.execute(check_active_subscription_query, (customer_id,))
-
-        current_subscription_plan = cur.fetchone()
-        if current_subscription_plan is not None:
-            current_subscription_plan = current_subscription_plan[0]
+        current_subscription_plan = getCurrentCustomerSubscriptionPlan(cur, customer_id)
 
         if current_subscription_plan == subscription_plan:
             raise ValueError("Customer has already have the ", subscription_plan,  " subscription plan.")
@@ -62,18 +51,10 @@ def purchaseSubscription(customer_id, subscription_plan):
             # the customer wants another type of subscription
             if subscription_plan == 'Premium':
                 processPurchase(customer_id, subscription_plan, cur)
-
-                # inactivate old subscription
-                inactivate_basic_query = """UPDATE CraftStyle.CustomerPlan set expired = '1' \
-                                              where customerId = %s;"""
-                cur.execute(inactivate_basic_query, (customer_id,))
-
+                inactivateCustomerSubscriptionPlan(cur, customer_id)
                 # activate new subscription
                 plan_id = getSubscriptionPlanId('Premium', cur)
-
-                create_customer_plan_query = "INSERT INTO CraftStyle.CustomerPlan \
-                (customerId, subscriptionPlanId, purchaseDate, expired) VALUES (%s, %s, current_date, '0');"
-                cur.execute(create_customer_plan_query, (customer_id, plan_id))
+                addCustomerSubscriptionPlan(cur, customer_id, plan_id)
 
             elif subscription_plan == 'Basic':
                 raise ValueError("Hey, guy, there is no point to change degrade your subscription to basic one")
@@ -83,12 +64,9 @@ def purchaseSubscription(customer_id, subscription_plan):
 
             # add desirable subscription for the customer
             plan_id = getSubscriptionPlanId(subscription_plan, cur)
-
-            create_customer_plan_query = "INSERT INTO CraftStyle.CustomerPlan \
-            (customerId, subscriptionPlanId, purchaseDate, expired) VALUES (%s, %s, current_date, '0');"
-            cur.execute(create_customer_plan_query, (customer_id, plan_id))
-
+            addCustomerSubscriptionPlan(cur, customer_id, plan_id)
         cur.execute("commit")
+
     except Exception as e:
         # if any error occur
         cur.execute("rollback")
@@ -105,6 +83,33 @@ def processPurchase(customer_id, subscription_plan, cur):
 
     # update customer's balance
     reduceCustomerBalance(customer_id, balance - price, cur)
+
+def inactivateCustomerSubscriptionPlan(cur, customer_id):
+    # inactivate old subscription
+    inactivate_basic_query = """UPDATE CraftStyle.CustomerPlan set expired = '1' \
+                                  where customerId = %s;"""
+    cur.execute(inactivate_basic_query, (customer_id,))
+
+def addCustomerSubscriptionPlan(cur, customer_id, plan_id):
+    create_customer_plan_query = "INSERT INTO CraftStyle.CustomerPlan \
+    (customerId, subscriptionPlanId, purchaseDate, expired) VALUES (%s, %s, current_date, '0');"
+    cur.execute(create_customer_plan_query, (customer_id, plan_id))
+
+
+def getCurrentCustomerSubscriptionPlan(cur, customer_id):
+    check_active_subscription_query = """select sp."type"
+    from CraftStyle.CustomerPlan cp 
+    join CraftStyle.SubscriptionPlan sp on cp.subscriptionPlanId = sp.planId
+    where cp.customerId = %s
+    and cp.expired = '0';"""
+
+    cur.execute(check_active_subscription_query, (customer_id,))
+
+    current_subscription_plan = cur.fetchone()
+    if current_subscription_plan is not None:
+        current_subscription_plan = current_subscription_plan[0]
+
+    return current_subscription_plan
 
 # def createCustomerSession(customer_id, pictures, picure_links, tags):
 #     cur = connect()

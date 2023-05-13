@@ -33,18 +33,15 @@ def deleteCustomer(customer_id):
         # delete all customers' pictures
         delete_customer_pictures_query = """delete from Picture WHERE custometID = %s;"""
         cur.execute(delete_customer_pictures_query, (customer_id))
-        cur.execute("COMMIT")
-
         # delete all customer's sessions
         # delete_customer_sessions_query = """delete from CustomerSession WHERE custometID = %s;"""
         # cur.execute(delete_customer_sessions_query, (customer_id))
-        # cur.execute("COMMIT")
 
         # delete all customer's subscription history
         delete_customer_subscriptions_query = """delete from customerPlan WHERE custometID = %s;"""
         cur.execute(delete_customer_subscriptions_query, (customer_id))
-        cur.execute("COMMIT")
 
+        cur.execute("COMMIT")
     except Exception as e:
         # raise an exception if any error occur
         cur.execute("Rollback;")
