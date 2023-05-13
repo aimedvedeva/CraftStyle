@@ -1,4 +1,6 @@
 from connect_postgre import connect
+from session import deleteCustomerSessions
+
 
 def createCustomerTable():
     cur = connect()
@@ -33,9 +35,9 @@ def deleteCustomer(customer_id):
         # delete all customers' pictures
         delete_customer_pictures_query = """delete from CraftStyle.Picture WHERE custometId = %s;"""
         cur.execute(delete_customer_pictures_query, (customer_id))
+
         # delete all customer's sessions
-        # delete_customer_sessions_query = """delete from CustomerSession WHERE custometID = %s;"""
-        # cur.execute(delete_customer_sessions_query, (customer_id))
+        deleteCustomerSessions(customer_id)
 
         # delete all customer's subscription history
         delete_customer_subscriptions_query = """delete from CraftStyle.customerPlan WHERE custometId = %s;"""
