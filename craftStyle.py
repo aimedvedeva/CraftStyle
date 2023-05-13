@@ -1,7 +1,10 @@
-from connect import connect
+from connect_postgre import connect
 from customer import getCustomerBalance, reduceCustomerBalance
+from picture import addPicture
+from recommendation import getRecommendation
+from session import createSession, generateSessionId, updateSessionRecommendation
 from subscriptionPlan import getSubscriptionPrice, getSubscriptionPlanId
-
+from datetime import date
 
 def createCraftStyleScheme():
     cur = connect()
@@ -110,6 +113,28 @@ def getCurrentCustomerSubscriptionPlan(cur, customer_id):
         current_subscription_plan = current_subscription_plan[0]
 
     return current_subscription_plan
+
+def createCustomerSession(customer_id, tags, picture_urls):
+    session_id = generateSessionId()
+    recommendation = None
+    number_of_pictures = len(picture_urls)
+    createSession(customer_id, session_id, recommendation, number_of_pictures, tags, date.today())
+
+    uploadSessionPictures(picture_urls)
+    return session_id
+
+
+def uploadSessionPictures(customer_id, picture_urls, tags):
+    for picture_url in picture_urls:
+        addPicture(customer_id, picture_url, tags)
+
+def processCustomerSession(customer_id, tags, picture_urls):
+    session_id = createCustomerSession(customer_id, tags, picture_urls)
+    recommendation = getRecommendation(picture_urls, tags)
+    updateSessionRecommendation(session_id, recommendation)
+
+
+
 
 # def createCustomerSession(customer_id, pictures, picure_links, tags):
 #     cur = connect()
