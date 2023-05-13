@@ -31,14 +31,14 @@ def deleteCustomer(customer_id):
 
     try:
         # delete all customers' pictures
-        delete_customer_pictures_query = """delete from Picture WHERE custometID = %s;"""
+        delete_customer_pictures_query = """delete from CraftStyle.Picture WHERE custometId = %s;"""
         cur.execute(delete_customer_pictures_query, (customer_id))
         # delete all customer's sessions
         # delete_customer_sessions_query = """delete from CustomerSession WHERE custometID = %s;"""
         # cur.execute(delete_customer_sessions_query, (customer_id))
 
         # delete all customer's subscription history
-        delete_customer_subscriptions_query = """delete from customerPlan WHERE custometID = %s;"""
+        delete_customer_subscriptions_query = """delete from CraftStyle.customerPlan WHERE custometId = %s;"""
         cur.execute(delete_customer_subscriptions_query, (customer_id))
 
         cur.execute("COMMIT")
@@ -46,10 +46,6 @@ def deleteCustomer(customer_id):
         # raise an exception if any error occur
         cur.execute("Rollback;")
         
-
-    
-
-
 def getCustomerBalance(customer_id, cur):
     get_customer_balance = """select balance from CraftStyle.Customer where customerId = %s"""
     cur.execute(get_customer_balance, (customer_id,))
