@@ -1,4 +1,4 @@
-from connect import connect
+from connect_postgre import connect
 
 def createPictureTable():
     cur = connect()
@@ -10,10 +10,10 @@ def createPictureTable():
         uploadDate date);")
     cur.execute("COMMIT")
 
-def addPicture(customer_id, URL, Tag):
+def addPicture(customer_id, picture_url, tags):
     cur = connect()
     q="INSERT INTO CraftStyle.Picture(customerID,pictureUrl,tags, upload_date) VALUES (%s, %s, %s, current_date);"
-    cur.execute(q, (customer_id, URL, Tag))
+    cur.execute(q, (customer_id, picture_url, tags))
     cur.execute("COMMIT")
 
 def deletePicture(picture_id):

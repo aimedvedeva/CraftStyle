@@ -1,4 +1,4 @@
-from connect import connect
+from connect_postgre import connect
 
 def createCustomerTable():
     cur = connect()
