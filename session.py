@@ -37,3 +37,17 @@ def deleteSession(session_id):
     # Delete the session data
     redis_client.delete(session_key)
 
+
+def deleteCustomerSessions(customer_id):
+    redis_client = connect()
+
+    # Get all session IDs for the customer
+    session_ids = redis_client.zrange(f'craft_style_sessions:{customer_id}', 0, -1)
+
+    # Delete session data and remove session IDs from the Sorted Set
+    pipeline = redis_client.pipeline()
+    for session_id in session_ids:
+        deleteSession(session_id)
+    pipeline.delete(f'craft_style_sessions:{customer_id}')
+    pipeline.execute()
+
