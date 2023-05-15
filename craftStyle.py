@@ -1,4 +1,4 @@
-from connect_postgre import connect
+from connect_postgre import *
 from customer import getCustomerBalance, reduceCustomerBalance
 from picture import addPicture
 from recommendation import getRecommendation
@@ -7,12 +7,12 @@ from subscriptionPlan import getSubscriptionPrice, getSubscriptionPlanId
 from datetime import date
 
 def createCraftStyleScheme():
-    cur = connect()
+    cur = connectsgl()
     cur.execute("CREATE SCHEMA if not EXISTS CraftStyle;")
     cur.execute("COMMIT")
 
 def createCustomerPlanTable():
-    cur = connect()
+    cur = connectsgl()
     cur.execute("CREATE table if not EXISTS CraftStyle.CustomerPlan(customerId INT REFERENCES CraftStyle.Customer(customerId),\
                                                                     subscriptionPlanId INT REFERENCES CraftStyle.SubscriptionPlan(planId),\
                                                                     purchaseDate date,\
@@ -20,7 +20,7 @@ def createCustomerPlanTable():
     cur.execute("commit")
 
 def purchaseSubscription(customer_id, subscription_plan):
-    cur = connect()
+    cur = connectsgl()
     cur.execute("set transaction isolation level serializable;")
     cur.execute("begin;")
 

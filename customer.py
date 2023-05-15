@@ -1,9 +1,9 @@
-from connect_postgre import connect
+from connect_postgre import *
 from session import deleteCustomerSessions
 
 
 def createCustomerTable():
-    cur = connect()
+    cur = connectsgl()
     cur.execute(
         "CREATE table if not EXISTS CraftStyle.Customer(customerId INT primary key GENERATED ALWAYS AS IDENTITY, \
                                                         name varchar not null,\
@@ -14,7 +14,7 @@ def createCustomerTable():
     cur.execute("COMMIT")
 
 def addCustomer(name, money):
-    cur = connect()
+    cur = connectsgl()
     cur.execute("begin;")
 
     create_customer_query = """INSERT INTO CraftStyle.Customer(name, sessionsNumber, subscriptionPlanId, balance, registrationDate)\
@@ -27,7 +27,7 @@ def deleteCustomer(customer_id):
     # firstly, we have to delete corresponding rows there
     # and finally from Customer table
 
-    cur = connect()
+    cur = connectsgl()
     cur.execute("set transaction isolation level serializable;")
     cur.execute("begin;")
 

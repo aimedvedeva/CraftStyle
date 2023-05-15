@@ -1,7 +1,11 @@
-from craftStyle import createCraftStyleScheme, createCustomerPlanTable, purchaseSubscription
-from customer import createCustomerTable, addCustomer
-from picture import createPictureTable
-from subscriptionPlan import createSubscriptionPlanTable, addSubscriptionPlan
+from craftStyle import *
+from customer import *
+from picture import *
+from subscriptionPlan import *
+from  session import *
+from  recommendation import *
+
+
 
 def populate():
     # create scheme
@@ -37,3 +41,23 @@ def populate():
     # addPicture(1, 'https://drive.google.com/file/d/1UytPqBiPHJE4ES5jTToOr8BRRvLi2nT1/view?usp=sharing', 'rock')
     # addPicture(2, 'https://drive.google.com/file/d/1dT8WV288nerOT8PdG2HlYJCGND-ibCeZ/view?usp=sharing', 'casual, office')
     # addPicture(3, 'https://drive.google.com/file/d/1f6pIr-1ab7T9-Rc8j37zpJ0QiRwA0nA2/view?usp=share_link', 'casual')
+
+
+
+#-------------------------------------------------------------------------------------------------------------------
+#Populate redis
+
+
+# image_urls='https://drive.google.com/file/d/1UytPqBiPHJE4ES5jTToOr8BRRvLi2nT1/view?usp=sharing'
+# style_tags='rock'
+
+# customer_id=1
+
+image_urls='https://drive.google.com/file/d/1dT8WV288nerOT8PdG2HlYJCGND-ibCeZ/view?usp=sharing'
+style_tags='casual, office'
+
+customer_id=2
+
+session_id=createSession(customer_id, image_urls, style_tags)
+session_data = getSession(session_id)
+print(session_data)

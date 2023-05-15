@@ -1,8 +1,8 @@
-from connect_postgre import connect
+from connect_postgre import *
 
 
 def createSubscriptionPlanTable():
-    cur = connect()
+    cur = connectsgl()
     cur.execute(
         "CREATE table if not EXISTS \
         CraftStyle.SubscriptionPlan(planId INT primary key GENERATED ALWAYS AS IDENTITY,\
@@ -31,7 +31,7 @@ def getSubscriptionPlanId(subscription_plan, cur):
     return plan_id
 
 def deleteSubscriptionPlan(plan_id):
-    cur = connect()
+    cur = connectsgl()
     cur.execute("set transaction isolation level serializable;")
     cur.execute("begin;")
 
