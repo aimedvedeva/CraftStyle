@@ -1,10 +1,9 @@
 from connect_postgre import *
 from customer import getCustomerBalance, reduceCustomerBalance
 from picture import addPicture
-from recommendation import getRecommendation
-from session import createSession, generateSessionId, updateSessionRecommendation
 from subscriptionPlan import getSubscriptionPrice, getSubscriptionPlanId
-from datetime import date
+from datetime import date as dt
+from connect_redis import *
 
 def createCraftStyleScheme():
     cur = connectsgl()
@@ -55,7 +54,7 @@ def purchaseSubscription(customer_id, subscription_plan):
         # if any error occur
         cur.execute("rollback")
 
-def processPurchase(customer_id, subscription_plan, cur):
+def processPurchase(customer_id, subscription_plan,cur):
     # get balance
     balance = getCustomerBalance(customer_id, cur)
 
@@ -67,6 +66,11 @@ def processPurchase(customer_id, subscription_plan, cur):
 
     # update customer's balance
     reduceCustomerBalance(customer_id, balance - price, cur)
+    plan_id = getSubscriptionPlanId(subscription_plan, cur)
+    addCustomerSubscriptionPlan(cur, customer_id, plan_id)
+    q2 = "UPDATE CraftStyle.customer SET subscriptionplanid = %s WHERE customerid = %s;"
+    cur.execute(q2, (plan_id, customer_id))
+
 
 def inactivateCustomerSubscriptionPlan(cur, customer_id):
     # inactivate old subscription
@@ -75,12 +79,15 @@ def inactivateCustomerSubscriptionPlan(cur, customer_id):
     cur.execute(inactivate_basic_query, (customer_id,))
 
 def addCustomerSubscriptionPlan(cur, customer_id, plan_id):
-    create_customer_plan_query = "INSERT INTO CraftStyle.CustomerPlan \
+    q1 = "INSERT INTO CraftStyle.CustomerPlan \
     (customerId, subscriptionPlanId, purchaseDate, expired) VALUES (%s, %s, current_date, '0');"
-    cur.execute(create_customer_plan_query, (customer_id, plan_id))
+    cur.execute(q1, (customer_id, plan_id))
+    q2 = "UPDATE CraftStyle.customer SET subscriptionplanid = %s WHERE customerid = %s;"
+    cur.execute(q2, (plan_id, customer_id))
 
 
-def getCurrentCustomerSubscriptionPlan(cur, customer_id):
+def getCurrentCustomerSubscriptionPlan( customer_id):
+    cur=connectsgl()
     check_active_subscription_query = """select sp."type"
     from CraftStyle.CustomerPlan cp 
     join CraftStyle.SubscriptionPlan sp on cp.subscriptionPlanId = sp.planId
@@ -95,21 +102,27 @@ def getCurrentCustomerSubscriptionPlan(cur, customer_id):
 
     return current_subscription_plan
 
-def createCustomerSession(customer_id, tags, picture_urls):
-    session_id = generateSessionId()
-    recommendation = None
-    number_of_pictures = len(picture_urls)
-    createSession(customer_id, session_id, recommendation, number_of_pictures, tags, date.today())
+# def createCustomerSession(customer_id, tags, picture_urls):
+#     session_id = generateSessionId()
+#     recommendation = None
+#     number_of_pictures = len(picture_urls)
+#     createSession(customer_id, session_id, recommendation, number_of_pictures, tags, date.today())
 
-    uploadSessionPictures(picture_urls)
-    return session_id
+#     uploadSessionPictures(picture_urls)
+#     return session_id
 
 
 def uploadSessionPictures(customer_id, picture_urls, tags):
     for picture_url in picture_urls:
         addPicture(customer_id, picture_url, tags)
+        
 
-def processCustomerSession(customer_id, tags, picture_urls):
-    session_id = createCustomerSession(customer_id, tags, picture_urls)
-    recommendation = getRecommendation(picture_urls, tags)
-    updateSessionRecommendation(session_id, recommendation)
+
+# def processCustomerSession(customer_id, tags, picture_urls):
+#     session_id = createCustomerSession(customer_id, tags, picture_urls)
+#     recommendation = getRecommendation(picture_urls, tags)
+#     updateSessionRecommendation(session_id, recommendation)
+    
+
+
+    

@@ -58,3 +58,4 @@ def getCustomerBalance(customer_id, cur):
 def reduceCustomerBalance(customer_id, new_balance, cur):
     update_balance_query = """UPDATE CraftStyle.Customer set balance = cast(%s as money) where customerId = %s;"""
     cur.execute(update_balance_query, (new_balance, customer_id))
+   
