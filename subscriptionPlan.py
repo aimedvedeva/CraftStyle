@@ -28,3 +28,11 @@ def delete_subscription_plan(plan_id):
     delete_subscription_plan_query = """delete from CraftStyle.SubscriptionPlan WHERE planId = %s;"""
     cur.execute(delete_subscription_plan_query, (plan_id,))
     cur.execute("COMMIT")
+
+
+def get_subscription_plan_allowed_sessions(subscription_plan):
+    cur = connect_postgre()
+    get_subscription_plan_allowed_sessions = """select allowedSessions from CraftStyle.SubscriptionPlan where type = %s"""
+    cur.execute(get_subscription_plan_allowed_sessions, (subscription_plan,))
+    allowed_sessions = cur.fetchone()[0]
+    return allowed_sessions
