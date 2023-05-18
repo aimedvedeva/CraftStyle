@@ -6,7 +6,6 @@ def create_scheme():
 
 
 def create_tables():
-    # create tables
     _create_subscription_plan_table()
     _create_customer_table()
     _create_customer_plan_table()
