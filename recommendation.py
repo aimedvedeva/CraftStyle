@@ -1,6 +1,6 @@
 import openai
 
-openai.api_key = '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'
+openai.api_key = ''
 
 
 def get_recommendation(image_urls, style_tags):
