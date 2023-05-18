@@ -1,26 +1,15 @@
-from connect_postgre import *
+from connect_postgre import connect_postgre
 
-def createPictureTable():
-    cur = connectsgl()
-    cur.execute(
-        "CREATE table if not EXISTS CraftStyle.Picture(pictureId INT primary key GENERATED ALWAYS AS IDENTITY,\
-        customerId INT REFERENCES CraftStyle.Customer(customerId),\
-        pictureUrl varchar,\
-        tags varchar,\
-        uploadDate date);")
+
+def add_picture(customer_id, picture_url, tags):
+    cur = connect_postgre()
+    add_picture_query = "INSERT INTO CraftStyle.Picture(customerID, pictureUrl, tags, uploaddate) VALUES (%s, %s, %s, current_date);"
+    cur.execute(add_picture_query, (customer_id, picture_url, tags))
     cur.execute("COMMIT")
 
-def addPicture(customer_id, picture_url, tags):
-    cur = connectsgl()
-    q="INSERT INTO CraftStyle.Picture(customerID,pictureUrl,tags, uploaddate) VALUES (%s, %s, %s, current_date);"
-    cur.execute(q, (customer_id, picture_url, tags))
-    cur.execute("COMMIT")
 
-def deletePicture(picture_id):
-    cur = connectsgl()
+def delete_picture(picture_id):
+    cur = connect_postgre()
     delete_picture_query = """delete from CraftStyle.Picture WHERE pictureId = %s;"""
     cur.execute(delete_picture_query, (picture_id,))
     cur.execute("COMMIT")
-
-
-
