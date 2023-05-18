@@ -1,5 +1,6 @@
 from connect_postgre import connect_postgre
-from customer import get_customer_balance, reduce_customer_balance
+from customer import get_customer_balance, reduce_customer_balance, get_current_customer_subscription_plan, \
+    inactivate_customer_subscription_plan, add_customer_subscription_plan
 from picture import add_picture
 from subscriptionPlan import get_subscription_plan_id, get_subscription_price
 
@@ -57,55 +58,3 @@ def _process_purchase(customer_id, subscription_plan, cur):
     add_customer_subscription_plan(cur, customer_id, plan_id)
     q2 = "UPDATE CraftStyle.customer SET subscriptionplanid = %s WHERE customerid = %s;"
     cur.execute(q2, (plan_id, customer_id))
-
-
-def inactivate_customer_subscription_plan(cur, customer_id):
-    # inactivate old subscription
-    inactivate_basic_query = """UPDATE CraftStyle.CustomerPlan set expired = '1' \
-                                  where customerId = %s;"""
-    cur.execute(inactivate_basic_query, (customer_id,))
-
-
-def add_customer_subscription_plan(cur, customer_id, plan_id):
-    q1 = "INSERT INTO CraftStyle.CustomerPlan \
-    (customerId, subscriptionPlanId, purchaseDate, expired) VALUES (%s, %s, current_date, '0');"
-    cur.execute(q1, (customer_id, plan_id))
-    q2 = "UPDATE CraftStyle.customer SET subscriptionplanid = %s WHERE customerid = %s;"
-    cur.execute(q2, (plan_id, customer_id))
-
-
-def get_current_customer_subscription_plan(customer_id):
-    cur = connect_postgre()
-    check_active_subscription_query = """select sp."type"
-    from CraftStyle.CustomerPlan cp 
-    join CraftStyle.SubscriptionPlan sp on cp.subscriptionPlanId = sp.planId
-    where cp.customerId = %s
-    and cp.expired = '0';"""
-
-    cur.execute(check_active_subscription_query, (customer_id,))
-
-    current_subscription_plan = cur.fetchone()
-    if current_subscription_plan is not None:
-        current_subscription_plan = current_subscription_plan[0]
-
-    return current_subscription_plan
-
-
-# def createCustomerSession(customer_id, tags, picture_urls):
-#     session_id = generateSessionId()
-#     recommendation = None
-#     number_of_pictures = len(picture_urls)
-#     createSession(customer_id, session_id, recommendation, number_of_pictures, tags, date.today())
-
-#     uploadSessionPictures(picture_urls)
-#     return session_id
-
-
-def upload_session_pictures(customer_id, picture_urls, tags):
-    for picture_url in picture_urls:
-        add_picture(customer_id, picture_url, tags)
-
-# def processCustomerSession(customer_id, tags, picture_urls):
-#     session_id = createCustomerSession(customer_id, tags, picture_urls)
-#     recommendation = getRecommendation(picture_urls, tags)
-#     updateSessionRecommendation(session_id, recommendation)
