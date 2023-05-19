@@ -135,26 +135,31 @@ def _process_customer_session(customer_id, tags, picture_urls):
     session_id = _create_customer_session(customer_id, tags, picture_urls)
     recommendation = get_recommendation(picture_urls, tags)
     update_session_recommendation(session_id, recommendation)
+    return session_id
 
 
 def launch_customer_session(customer_id, tags, picture_urls):
-    customer_subscription_plan = get_current_customer_subscription_plan(customer_id)
+    cur = connect_postgre()
+    customer_subscription_plan = get_current_customer_subscription_plan(cur, customer_id)
 
     if customer_subscription_plan == 'Premium':
-        _process_customer_session(customer_id, tags, picture_urls)
+        session_id = _process_customer_session(customer_id, tags, picture_urls)
+        return session_id
 
     elif customer_subscription_plan == 'Basic':
         sessions_number = get_customer_sessions_number(customer_id)
         allowed_sessions = get_subscription_plan_allowed_sessions(customer_subscription_plan)
 
         if sessions_number < allowed_sessions:
-            _process_customer_session(customer_id, tags, picture_urls)
+            session_id = _process_customer_session(customer_id, tags, picture_urls)
+            return session_id
         else:
             raise ValueError("You reached maximum allowed sessions for basic plan. Please, upgrade your plan")
 
     else:
         raise ValueError("Please, purchase a subscription plan")
 
+    return None
 
 def get_customer_tags(customer_id):
     redis_client = connect_redis()
