@@ -1,5 +1,5 @@
 from datetime import date
-
+from collections import Counter
 from connect_postgre import connect_postgre
 from connect_redis import connect_redis
 from picture import add_picture
@@ -155,3 +155,60 @@ def launch_customer_session(customer_id, tags, picture_urls):
 
     else:
         raise ValueError("Please, purchase a subscription plan")
+
+
+def get_customer_tags(customer_id):
+    redis_client = connect_redis()
+
+    # Get all session IDs for the customer
+    session_ids = redis_client.zrange(f'craft_style_sessions:{customer_id}', 0, -1)
+
+    # Collect unique tags for the customer
+    tags = set()
+    for session_id in session_ids:
+        session_key = f'craft_style_session:{session_id}'
+        session_tags = redis_client.hget(session_key, 'tags')
+        if session_tags:
+            tags.update(session_tags.split(','))
+
+    return tags
+
+
+# for extracting top 10 or other top tags
+def get_customer_tags_statistics(customer_id):
+    redis_client = connect_redis()
+
+    # Get all session IDs for the customer
+    session_ids = redis_client.zrange(f'craft_style_sessions:{customer_id}', 0, -1)
+
+    # Collect tags and count their occurrences for the customer
+    tags_counter = Counter()
+    for session_id in session_ids:
+        session_key = f'craft_style_session:{session_id}'
+        session_tags = redis_client.hget(session_key, 'tags')
+        if session_tags:
+            tags = session_tags.split(',')
+            tags_counter.update(tags)
+
+    return tags_counter
+
+
+def get_customer_pictures_with_tags(customer_id, desired_tags):
+    redis_client = connect_redis()
+
+    # Get all session IDs for the customer
+    session_ids = redis_client.zrange(f'craft_style_sessions:{customer_id}', 0, -1)
+
+    # Collect picture URLs for sessions with desired tags
+    picture_urls = []
+    for session_id in session_ids:
+        session_key = f'craft_style_session:{session_id}'
+        session_tags = redis_client.hget(session_key, 'tags')
+        if session_tags:
+            tags = session_tags.split(',')
+            if set(desired_tags).issubset(tags):  # Check if desired tags are present
+                picture_url = redis_client.hget(session_key, 'picture_url')
+                if picture_url:
+                    picture_urls.append(picture_url)
+
+    return picture_urls
