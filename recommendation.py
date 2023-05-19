@@ -4,7 +4,7 @@ openai.api_key = ''
 
 
 def get_recommendation(image_urls, style_tags):
-    prompt = "Given the following images and style tags, please provide a textual recommendation on how to finalize your look:\n"
+    prompt = "You are an experianced fashion designer. Given the following images and style tags, please provide a textual recommendation on how to finalize your look:\n"
 
     # Append the image URLs and style tags to the prompt
     for image_url, style_tag in zip(image_urls, style_tags):
@@ -25,12 +25,12 @@ def get_recommendation(image_urls, style_tags):
 
 
 # Example usage
-image_urls = [
-    'https://drive.google.com/your-image-url1.jpg',
-    'https://drive.google.com/your-image-url2.jpg',
-    'https://drive.google.com/your-image-url3.jpg'
-]
-style_tags = ['casual', 'formal', 'sporty']
-
-recommendation = get_recommendation(image_urls, style_tags)
-print(recommendation)
+# image_urls = [
+#     'https://drive.google.com/your-image-url1.jpg',
+#     'https://drive.google.com/your-image-url2.jpg',
+#     'https://drive.google.com/your-image-url3.jpg'
+# ]
+# style_tags = ['casual', 'formal', 'sporty']
+#
+# recommendation = get_recommendation(image_urls, style_tags)
+# print(recommendation)
