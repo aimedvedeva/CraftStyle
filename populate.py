@@ -1,5 +1,5 @@
 from craftStyle import purchase_subscription
-from customer import add_customer
+from customer import add_customer, launch_customer_session
 from session import create_session, get_session, delete_session
 from subscriptionPlan import add_subscription_plan
 
@@ -8,8 +8,8 @@ def populate_postgre_tables():
     # insert data into tables
 
     # SubscriptionPlan
-    #add_subscription_plan('Basic', 0, 5)
-    #add_subscription_plan('Premium', 0.99, 'Infinity')
+    add_subscription_plan('Basic', 0, 5)
+    add_subscription_plan('Premium', 0.99, 'Infinity')
 
     # Customer
     add_customer('Farh', 0)
@@ -27,18 +27,18 @@ def populate_subscriptions():
     purchase_subscription(12, 'Premium')  # upgrade his subscription plan
     purchase_subscription(11, 'Basic')
 
-def populate_redis():
+def populate_redis_with_sessions():
     # generate / hardcode example data
-    image_urls = [
+    picture_urls = [
         'https://drive.google.com/your-image-url1.jpg',
         'https://drive.google.com/your-image-url2.jpg',
         'https://drive.google.com/your-image-url3.jpg'
     ]
-    style_tags = ['casual', 'formal', 'sporty']
-    customer_id = 3
+    tags = 'casual, formal, sport'
+    customer_id = 12
 
-    # create session
-    session_id = create_session(customer_id, image_urls, style_tags)
+    # launch session
+    session_id = launch_customer_session(customer_id, tags, picture_urls)
     session_data = get_session(session_id)
     print(session_data)
 
