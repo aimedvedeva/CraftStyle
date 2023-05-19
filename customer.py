@@ -73,8 +73,7 @@ def update_customer_sessions_number(customer_id):
     cur.execute(q, (sessions_number, customer_id))
 
 
-def get_current_customer_subscription_plan(customer_id):
-    cur = connect_postgre()
+def get_current_customer_subscription_plan(cur, customer_id):
     check_active_subscription_query = """select sp."type"
     from CraftStyle.CustomerPlan cp 
     join CraftStyle.SubscriptionPlan sp on cp.subscriptionPlanId = sp.planId
