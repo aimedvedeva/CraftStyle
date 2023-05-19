@@ -7,7 +7,6 @@ def _generate_session_id():
     return session_id
 
 
-
 def update_session_recommendation(session_id, new_recommendation):
     redis_client = connect_redis()
 
@@ -28,14 +27,11 @@ def delete_session(session_id):
     redis_client.delete(session_key)
 
 
-
-
 def get_session(session_id):
     redis_client = connect_redis()
     session_key = f'craft_style_session:{session_id}'
     session_data = redis_client.hgetall(session_key)
     return session_data
-
 
 
 def create_session(customer_id, picture_urls, tags, date):
@@ -53,8 +49,8 @@ def create_session(customer_id, picture_urls, tags, date):
     redis_client.hset(session_key, 'recommendation', '')
     redis_client.hset(session_key, 'number_of_pictures', len(picture_urls))
     for idx, picture_url in enumerate(picture_urls):
-        redis_client.hset(session_key, 'number_of_pictures_'+str(idx), picture_urls)
+        redis_client.hset(session_key, 'number_of_pictures_' + str(idx), picture_url)
     redis_client.hset(session_key, 'tags', tags)
-    redis_client.hset(session_key, 'date', date)
+    redis_client.hset(session_key, 'date', str(date))
 
     return session_id
