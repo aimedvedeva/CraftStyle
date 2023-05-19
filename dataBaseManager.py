@@ -9,7 +9,6 @@ def create_tables():
     _create_subscription_plan_table()
     _create_customer_table()
     _create_customer_plan_table()
-    _create_picture_table()
 
 
 def _create_craftStyle_scheme():
@@ -51,12 +50,3 @@ def _create_subscription_plan_table():
     cur.execute("COMMIT")
 
 
-def _create_picture_table():
-    cur = connect_postgre()
-    cur.execute(
-        "CREATE table if not EXISTS CraftStyle.Picture(pictureId INT primary key GENERATED ALWAYS AS IDENTITY,\
-        customerId INT REFERENCES CraftStyle.Customer(customerId),\
-        pictureUrl varchar,\
-        tags varchar,\
-        uploadDate date);")
-    cur.execute("COMMIT")
