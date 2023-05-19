@@ -1,7 +1,6 @@
 from connect_postgre import connect_postgre
 from customer import get_customer_balance, reduce_customer_balance, get_current_customer_subscription_plan, \
     inactivate_customer_subscription_plan, add_customer_subscription_plan
-from picture import add_picture
 from subscriptionPlan import get_subscription_plan_id, get_subscription_price
 
 
@@ -54,7 +53,3 @@ def _process_purchase(customer_id, subscription_plan, cur):
 
     # update customer's balance
     reduce_customer_balance(customer_id, balance - price, cur)
-    plan_id = get_subscription_plan_id(subscription_plan, cur)
-    add_customer_subscription_plan(cur, customer_id, plan_id)
-    q2 = "UPDATE CraftStyle.customer SET subscriptionplanid = %s WHERE customerid = %s;"
-    cur.execute(q2, (plan_id, customer_id))
