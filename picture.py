@@ -1,15 +1,24 @@
-from connect_postgre import connect_postgre
+from connect_redis import connect_redis
 
 
-def add_picture(customer_id, picture_url, tags):
-    cur = connect_postgre()
-    add_picture_query = "INSERT INTO CraftStyle.Picture(customerID, pictureUrl, tags, uploaddate) VALUES (%s, %s, %s, current_date);"
-    cur.execute(add_picture_query, (customer_id, picture_url, tags))
-    cur.execute("COMMIT")
+def add_picture(picture_id, upload_date, customer_id, tags, picture_link):
+    redis_client = connect_redis()
+
+    # Create a hash key for the picture
+    picture_key = f'craft_style_picture:{picture_id}'
+
+    # Add the picture data as hash fields
+    redis_client.hset(picture_key, 'upload_date', upload_date)
+    redis_client.hset(picture_key, 'customer_id', customer_id)
+    redis_client.hset(picture_key, 'tags', tags)
+    redis_client.hset(picture_key, 'picture_link', picture_link)
 
 
 def delete_picture(picture_id):
-    cur = connect_postgre()
-    delete_picture_query = """delete from CraftStyle.Picture WHERE pictureId = %s;"""
-    cur.execute(delete_picture_query, (picture_id,))
-    cur.execute("COMMIT")
+    redis_client = connect_redis()
+
+    # Create a hash key for the picture
+    picture_key = f'craft_style_picture:{picture_id}'
+
+    # Delete the picture data
+    redis_client.delete(picture_key)
