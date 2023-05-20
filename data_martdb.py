@@ -46,7 +46,7 @@ def register_info_mart(name):
     cur.execute("COMMIT")
 
 
-def deactivat_info_mart(customer_id):
+def deactivate_info_mart(customer_id):
     cur = connect_postgre()
     # If customer deleted insert data into the DataMart table
 
