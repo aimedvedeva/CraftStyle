@@ -33,5 +33,36 @@ def session_info_mart(customer_id, activity_date):
     cur.execute(insert_query, (customer_id, activity_date, activity, session_number, top_tags, subscription_plan_id))
     cur.execute("COMMIT")
 
-data_mart_table()
 
+def register_info_mart(name):
+    cur = connect_postgre()
+    cur.execute("SELECT customerId FROM CraftStyle.Customer WHERE name = %s;", (name,))
+    customer_id = cur.fetchone()[0]  # Get the customer ID after insertion
+    activity = 'customer registered'
+    insert_query = "INSERT INTO CraftStyle.DataMart (customerId, activityDate, activity, " \
+                   "sessionNumber, topTags, subscriptionPlanId) " \
+                   "VALUES (%s, %s, %s, NULL, NULL, NULL);"
+    cur.execute(insert_query, (customer_id, date.today(), activity))
+    cur.execute("COMMIT")
+
+
+def deactivat_info_mart(customer_id):
+    cur = connect_postgre()
+    # If customer deleted insert data into the DataMart table
+
+    activity = 'customer deactivated'
+    insert_query = "INSERT INTO CraftStyle.DataMart (customerId, activityDate, activity, " \
+                   "sessionNumber, topTags, subscriptionPlanId) " \
+                   "VALUES (%s, %s, %s, NULL, NULL, NULL);"
+    cur.execute(insert_query, (customer_id, date.today(), activity))
+    cur.execute("COMMIT")
+
+
+def purchased_info_mart(customer_id, plan_id):
+    cur = connect_postgre()
+    activity = 'customer purchased a subscription plan'
+    insert_query = "INSERT INTO CraftStyle.DataMart (customerId, activityDate, activity, " \
+                   "sessionNumber, topTags, subscriptionPlanId) " \
+                   "VALUES (%s, %s, %s, %s, NULL, %s);"
+    cur.execute(insert_query, (customer_id, date.today(), activity, 0, plan_id))
+    cur.execute("COMMIT")

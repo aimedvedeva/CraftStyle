@@ -2,7 +2,7 @@ from craftStyle import purchase_subscription
 from customer import add_customer, launch_customer_session
 from session import create_session, get_session, delete_session
 from subscriptionPlan import add_subscription_plan
-from data_mart import session_info_mart
+from data_martdb import session_info_mart, register_info_mart
 
 def populate_postgre_tables():
     # insert data into tables
@@ -16,7 +16,10 @@ def populate_postgre_tables():
     add_customer('Bob', 100)
     add_customer('jo', 0)
     add_customer('eli', 10)
-
+    register_info_mart('Farh')
+    register_info_mart('Bob')
+    register_info_mart('jo')
+    register_info_mart('eli')
 def populate_subscriptions():
     # CustomerPlan
     purchase_subscription(9, 'Basic')
