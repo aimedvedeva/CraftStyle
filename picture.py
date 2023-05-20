@@ -4,8 +4,8 @@ from datetime import date
 from connect_redis import connect_redis
 
 def _generate_picture_id():
-    session_id = str(uuid.uuid4())
-    return session_id
+    picture_id = str(uuid.uuid4())
+    return picture_id
 
 def add_picture(customer_id, tags, picture_link):
     picture_id = _generate_picture_id()
