@@ -139,7 +139,7 @@ def add_customer_subscription_plan(cur, customer_id, plan_id):
     insert_query = "INSERT INTO CraftStyle.DataMart (customerId, activityDate, activity, " \
                    "sessionNumber, topTags, subscriptionPlanId) " \
                    "VALUES (%s, %s, %s, %s, NULL, %s);"
-    cur.execute(insert_query, (customer_id, date.today(), activity, 0,plan_id))
+    cur.execute(insert_query, (customer_id, date.today(), activity, 0, plan_id))
     cur.execute("COMMIT")
 
 def delete_customer_sessions(customer_id):
