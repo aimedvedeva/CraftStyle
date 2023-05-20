@@ -38,18 +38,17 @@ def delete_customer(customer_id):
     cur.execute("begin;")
 
     try:
-        # delete all customers' pictures
-        delete_customer_pictures_query = """delete from CraftStyle.Picture WHERE custometId = %s;"""
-        cur.execute(delete_customer_pictures_query, (customer_id))
-
-        # delete all customer's sessions
-        delete_customer_sessions(customer_id)
-
         # delete all customer's subscription history
         delete_customer_subscriptions_query = """delete from CraftStyle.customerPlan WHERE custometId = %s;"""
         cur.execute(delete_customer_subscriptions_query, (customer_id))
-
         cur.execute("COMMIT")
+
+        # delete all customers' pictures REDIS
+        delete_customer_pictures(customer_id)
+
+        # delete all customer's sessions REDIS
+        delete_customer_sessions(customer_id)
+
     except Exception as e:
         # raise an exception if any error occur
         cur.execute("Rollback;")
@@ -62,6 +61,19 @@ def delete_customer(customer_id):
                    "VALUES (%s, %s, %s, NULL, NULL, NULL);"
     cur.execute(insert_query, (customer_id, date.today(), activity))
     cur.execute("COMMIT")
+
+
+def delete_customer_pictures(customer_id):
+    redis_client = connect_redis()
+
+    # Get all picture keys matching the customer_id
+    picture_keys = redis_client.keys('craft_style_picture:*')
+    customer_picture_keys = [key.decode() for key in picture_keys if
+                             redis_client.hget(key, 'customer_id').decode() == customer_id]
+
+    # Delete the customer pictures
+    for key in customer_picture_keys:
+        redis_client.delete(key)
 
 
 def get_customer_balance(customer_id, cur):
@@ -186,6 +198,7 @@ def launch_customer_session(customer_id, tags, picture_urls):
         raise ValueError("Please, purchase a subscription plan")
 
     return None
+
 
 def get_customer_tags(customer_id):
     redis_client = connect_redis()
