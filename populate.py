@@ -16,7 +16,10 @@ def populate_postgre_tables():
     add_customer('Bob', 100)
     add_customer('jo', 0)
     add_customer('eli', 10)
-
+    register_info_mart('Farh')
+    register_info_mart('Bob')
+    register_info_mart('jo')
+    register_info_mart('eli')
 def populate_subscriptions():
     # CustomerPlan
     purchase_subscription(9, 'Basic')
@@ -42,6 +45,8 @@ def populate_redis_with_sessions():
     session_data = get_session(session_id)
     print(session_data)
 
+    #save information to datamaret
+    session_info_mart(customer_id, session_data)
     # delete session
     delete_session(session_id)
     session_data = get_session(session_id)
