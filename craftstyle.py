@@ -1,7 +1,7 @@
 from connect_postgre import connect_postgre
 from customer import get_customer_balance, reduce_customer_balance, get_current_customer_subscription_plan, \
     inactivate_customer_subscription_plan, add_customer_subscription_plan
-from subscriptionPlan import get_subscription_plan_id, get_subscription_price
+from subscription_plan import get_subscription_plan_id, get_subscription_price
 
 
 def purchase_subscription(customer_id, subscription_plan):

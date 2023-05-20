@@ -5,7 +5,7 @@ from connect_redis import connect_redis
 from picture import add_picture
 from recommendation import get_recommendation
 from session import delete_session, update_session_recommendation, create_session
-from subscriptionPlan import get_subscription_plan_allowed_sessions
+from subscription_plan import get_subscription_plan_allowed_sessions
 
 
 def add_customer(name, money):

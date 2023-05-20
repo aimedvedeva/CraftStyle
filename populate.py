@@ -1,7 +1,7 @@
-from craftStyle import purchase_subscription
+from craftstyle import purchase_subscription
 from customer import add_customer, launch_customer_session
 from session import create_session, get_session, delete_session
-from subscriptionPlan import add_subscription_plan
+from subscription_plan import add_subscription_plan
 
 
 def populate_postgre_tables():
