@@ -119,15 +119,12 @@ def add_customer_subscription_plan(cur, customer_id, plan_id):
 def delete_customer_sessions(customer_id):
     redis_client = connect_redis()
 
-    # Get all session IDs for the customer
-    session_ids = redis_client.zrange(f'craft_style_sessions:{customer_id}', 0, -1)
+    sessions_keys = redis_client.keys('craft_style_session:*')
+    session_ids = [key.decode() for key in sessions_keys if
+                   redis_client.hget(key, 'customer_id').decode() == customer_id]
 
-    # Delete session data and remove session IDs from the Sorted Set
-    pipeline = redis_client.pipeline()
     for session_id in session_ids:
         delete_session(session_id)
-    pipeline.delete(f'craft_style_sessions:{customer_id}')
-    pipeline.execute()
 
 
 # just create empty session
@@ -177,8 +174,9 @@ def launch_customer_session(customer_id, tags, picture_urls):
 def get_customer_tags(customer_id):
     redis_client = connect_redis()
 
-    # Get all session IDs for the customer
-    session_ids = redis_client.zrange(f'craft_style_sessions:{customer_id}', 0, -1)
+    sessions_keys = redis_client.keys('craft_style_session:*')
+    session_ids = [key.decode() for key in sessions_keys if
+                   redis_client.hget(key, 'customer_id').decode() == customer_id]
 
     # Collect unique tags for the customer
     tags = set()
@@ -195,8 +193,9 @@ def get_customer_tags(customer_id):
 def get_customer_tags_statistics(customer_id):
     redis_client = connect_redis()
 
-    # Get all session IDs for the customer
-    session_ids = redis_client.zrange(f'craft_style_sessions:{customer_id}', 0, -1)
+    sessions_keys = redis_client.keys('craft_style_session:*')
+    session_ids = [key.decode() for key in sessions_keys if
+                   redis_client.hget(key, 'customer_id').decode() == customer_id]
 
     # Collect tags and count their occurrences for the customer
     tags_counter = Counter()
@@ -213,8 +212,9 @@ def get_customer_tags_statistics(customer_id):
 def get_customer_pictures_with_tags(customer_id, desired_tags):
     redis_client = connect_redis()
 
-    # Get all session IDs for the customer
-    session_ids = redis_client.zrange(f'craft_style_sessions:{customer_id}', 0, -1)
+    sessions_keys = redis_client.keys('craft_style_session:*')
+    session_ids = [key.decode() for key in sessions_keys if
+                   redis_client.hget(key, 'customer_id').decode() == customer_id]
 
     # Collect picture URLs for sessions with desired tags
     picture_urls = []
