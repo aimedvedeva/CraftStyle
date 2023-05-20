@@ -2,7 +2,7 @@ from craftStyle import purchase_subscription
 from customer import add_customer, launch_customer_session
 from session import create_session, get_session, delete_session
 from subscriptionPlan import add_subscription_plan
-
+from data_mart import session_info_mart
 
 def populate_postgre_tables():
     # insert data into tables
@@ -42,6 +42,8 @@ def populate_redis_with_sessions():
     session_data = get_session(session_id)
     print(session_data)
 
+    #save information to datamaret
+    session_info_mart(customer_id, session_data)
     # delete session
     delete_session(session_id)
     session_data = get_session(session_id)

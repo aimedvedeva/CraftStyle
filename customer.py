@@ -17,6 +17,16 @@ def add_customer(name, money):
     cur.execute(create_customer_query, (name, 0, money))
     cur.execute("commit")
 
+    # Insert data into the DataMart table
+
+    cur.execute("SELECT customerId FROM CraftStyle.Customer WHERE name = %s;", (name,))
+    customer_id = cur.fetchone()[0]     # Get the customer ID after insertion
+    activity = 'customer registered'
+    insert_query = "INSERT INTO CraftStyle.DataMart (customerId, activityDate, activity, " \
+                   "sessionNumber, topTags, subscriptionPlanId) " \
+                   "VALUES (%s, %s, %s, NULL, NULL, NULL);"
+    cur.execute(insert_query, (customer_id, date.today() , activity))
+    cur.execute("COMMIT")
 
 def delete_customer(customer_id):
     # since customer_id is a foreign key for CustomerSession, Picture and CustomerPlan
@@ -43,6 +53,15 @@ def delete_customer(customer_id):
     except Exception as e:
         # raise an exception if any error occur
         cur.execute("Rollback;")
+
+    # If customer deleted insert data into the DataMart table
+
+    activity = 'customer deactivated'
+    insert_query = "INSERT INTO CraftStyle.DataMart (customerId, activityDate, activity, " \
+                   "sessionNumber, topTags, subscriptionPlanId) " \
+                   "VALUES (%s, %s, %s, NULL, NULL, NULL);"
+    cur.execute(insert_query, (customer_id, date.today(), activity))
+    cur.execute("COMMIT")
 
 
 def get_customer_balance(customer_id, cur):
@@ -102,7 +121,14 @@ def add_customer_subscription_plan(cur, customer_id, plan_id):
     cur.execute(q1, (customer_id, plan_id))
     q2 = "UPDATE CraftStyle.customer SET subscriptionplanid = %s WHERE customerid = %s;"
     cur.execute(q2, (plan_id, customer_id))
+    # insert data into the DataMart table
 
+    activity = 'customer purchased a subscription plan'
+    insert_query = "INSERT INTO CraftStyle.DataMart (customerId, activityDate, activity, " \
+                   "sessionNumber, topTags, subscriptionPlanId) " \
+                   "VALUES (%s, %s, %s, %s, NULL, %s);"
+    cur.execute(insert_query, (customer_id, date.today(), activity, 0,plan_id))
+    cur.execute("COMMIT")
 
 def delete_customer_sessions(customer_id):
     redis_client = connect_redis()
@@ -140,7 +166,7 @@ def _process_customer_session(customer_id, tags, picture_urls):
 
 def launch_customer_session(customer_id, tags, picture_urls):
     cur = connect_postgre()
-    customer_subscription_plan = get_current_customer_subscription_plan(cur, customer_id)
+    customer_subscription_plan = get_current_customer_subscription_plan(customer_id)
 
     if customer_subscription_plan == 'Premium':
         session_id = _process_customer_session(customer_id, tags, picture_urls)
@@ -216,3 +242,4 @@ def get_customer_pictures_with_tags(customer_id, desired_tags):
                     picture_urls.append(picture_url)
 
     return picture_urls
+
