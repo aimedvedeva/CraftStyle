@@ -17,7 +17,9 @@ def populate_postgre_tables():
     add_customer('Bob', 100)
     add_customer('jo', 0)
     add_customer('eli', 10)
-
+    add_customer('rudy', 0)
+    
+    register_info_mart('rudy')
     register_info_mart('Farh')
     register_info_mart('Bob')
     register_info_mart('jo')
@@ -57,3 +59,7 @@ def populate_redis_with_sessions():
     delete_session(session_id)
     session_data = get_session(session_id)
     print(session_data)
+    
+    
+
+
