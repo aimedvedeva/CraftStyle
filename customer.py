@@ -72,8 +72,7 @@ def reduce_customer_balance(customer_id, new_balance, cur):
     cur.execute(update_balance_query, (new_balance, customer_id))
 
 
-def get_customer_sessions_number(customer_id):
-    cur = connect_postgre()
+def get_customer_sessions_number(cur, customer_id):
     query = "SELECT sessionsnumber FROM CraftStyle.customer WHERE customerid = %s;"
     cur.execute(query, (customer_id,))
     sessions_number = cur.fetchone()[0]

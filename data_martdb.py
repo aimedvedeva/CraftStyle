@@ -21,14 +21,14 @@ def session_info_mart(customer_id, activity_date):
     # Retrieve remaining values from other functions
     subscription_plan_id = get_current_customer_subscription_plan(cur, customer_id)
     activity = 'customer started a session'
-    session_number = get_current_customer_subscription_plan(customer_id)
-    # Determine the most frequent tag
-    customer_tags = get_customer_tags(customer_id)
-    tag_counter = Counter(customer_tags)
-    top_tags = tag_counter.most_common(1)[0][0]
+    session_number = get_customer_sessions_number(cur, customer_id)
+    # get the most frequent tag
+    tags_statistics = get_customer_tags_statistics(customer_id)
+    top_tags = tags_statistics.most_common(1)[0][0]
 
     # Insert data into the DataMart table
-    insert_query = "INSERT INTO CraftStyle.DataMart (customerId, activityDate, activity, sessionNumber, topTags, subscriptionPlanId) " \
+    insert_query = "INSERT INTO CraftStyle.DataMart (customerId, activityDate, activity, " \
+                   "sessionNumber, topTags, subscriptionPlanId) " \
                    "VALUES (%s, %s, %s, %s, %s, %s);"
     cur.execute(insert_query, (customer_id, activity_date, activity, session_number, top_tags, subscription_plan_id))
     cur.execute("COMMIT")
